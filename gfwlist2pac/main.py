@@ -19,7 +19,8 @@ def parse_args():
     parser.add_argument('-i', '--input', dest='input',
                         help='path to gfwlist', metavar='GFWLIST')
     parser.add_argument('-f', '--file', dest='output', required=True,
-                        help='path to output pac or dnsmasq\'s config', metavar='PAC')
+                        help='path to output pac or dnsmasq\'s config',
+                        metavar='PAC')
     parser.add_argument('-p', '--proxy', dest='proxy', required=True,
                         help='the proxy parameter in the pac file, '
                              'for example, "SOCKS5 127.0.0.1:1080;"'
@@ -162,13 +163,12 @@ def generate_pac_precise(rules, proxy):
     proxy_content = pkgutil.get_data('gfwlist2pac', 'resources/abp.js')
     rules = filter(grep_rule, rules)
     proxy_content = proxy_content.replace('__PROXY__', json.dumps(str(proxy)))
-    proxy_content = proxy_content.replace('__RULES__',
-                                          json.dumps(rules, indent=2))
+    proxy_content = proxy_content.replace('__RULES__', json.dumps(rules,
+                                                                  indent=2))
     return proxy_content
 
 def generate_dnsmasq_precise(domains, proxy):
     proxy_content = '#gfwlist start\n'
-    domains_dict = {}
     for domain in domains:
         proxy_content += 'address=/' + domain + '/' + proxy + '\n'
     proxy_content += '#gfwlist end\n'
