@@ -19,16 +19,21 @@ def parse_args():
     parser.add_argument('-i', '--input', dest='input',
                         help='path to gfwlist', metavar='GFWLIST')
     parser.add_argument('-f', '--file', dest='output', required=True,
-                        help='path to output pac', metavar='PAC')
+                        help='path to output pac or dnsmasq\'s config', metavar='PAC')
     parser.add_argument('-p', '--proxy', dest='proxy', required=True,
                         help='the proxy parameter in the pac file, '
-                             'for example, "SOCKS5 127.0.0.1:1080;"',
+                             'for example, "SOCKS5 127.0.0.1:1080;"'
+                             '\nthe dns server in the dnsmasq\' conf file'
+                             'for example, "192.168.1.1"',
                         metavar='PROXY')
     parser.add_argument('--user-rule', dest='user_rule',
                         help='user rule file, which will be appended to'
                              ' gfwlist')
     parser.add_argument('--precise', dest='precise', action='store_true',
                         help='use adblock plus algorithm instead of O(1)'
+                             ' lookup')
+    parser.add_argument('--dnsmasq', dest='dnsmasq', action='store_true',
+                        help='use dnsmasq algorithm instead of O(1)'
                              ' lookup')
     return parser.parse_args()
 
@@ -161,6 +166,13 @@ def generate_pac_precise(rules, proxy):
                                           json.dumps(rules, indent=2))
     return proxy_content
 
+def generate_dnsmasq_precise(domains, proxy):
+    proxy_content = '#gfwlist start\n'
+    domains_dict = {}
+    for domain in domains:
+        proxy_content += 'address=/' + domain + '/' + proxy + '\n'
+    proxy_content += '#gfwlist end\n'
+    return proxy_content
 
 def main():
     args = parse_args()
@@ -186,6 +198,10 @@ def main():
     gfwlist = combine_lists(content, user_rule)
     if args.precise:
         pac_content = generate_pac_precise(gfwlist, args.proxy)
+    elif args.dnsmasq:
+        domains = parse_gfwlist(gfwlist)
+        domains = reduce_domains(domains)
+        pac_content = generate_dnsmasq_precise(domains, args.proxy)
     else:
         domains = parse_gfwlist(gfwlist)
         domains = reduce_domains(domains)

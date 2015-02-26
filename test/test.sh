@@ -7,6 +7,7 @@ PYTHONPATH=. coverage run -a gfwlist2pac/main.py -f test/proxy.pac -p 'SOCKS5 12
 PYTHONPATH=. coverage run -a gfwlist2pac/main.py -i test/gfwlist.txt -f test/proxy.pac -p 'SOCKS5 127.0.0.1:1080; SOCKS 127.0.0.1:1080; DIRECT;' --user-rule test/user_rule.txt && \
 cat test/gfwlist.txt | base64 -d | PYTHONPATH=. coverage run -a gfwlist2pac/main.py -i /dev/stdin -f test/proxy_nobase64.pac -p 'SOCKS5 127.0.0.1:1080; SOCKS 127.0.0.1:1080; DIRECT;' --user-rule test/user_rule.txt && \
 PYTHONPATH=. coverage run -a gfwlist2pac/main.py --precise -i test/gfwlist.txt -f test/proxy_abp.pac -p 'SOCKS5 127.0.0.1:1080; SOCKS 127.0.0.1:1080; DIRECT;' --user-rule test/user_rule.txt && \
+PYTHONPATH=. coverage run -a gfwlist2pac/main.py --dnsmasq -i test/gfwlist.txt -f test/dnsmasq.conf.gfw -p '192.168.1.1' --user-rule test/user_rule.txt && \
 diff test/proxy.pac test/proxy_nobase64.pac && \
 popd && \
 cat proxy.pac test_case.js > /tmp/test.js && \
